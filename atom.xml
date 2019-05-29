@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://hcydev.com/"/>
-  <updated>2019-05-28T01:35:45.217Z</updated>
+  <updated>2019-05-29T15:59:56.865Z</updated>
   <id>http://hcydev.com/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>kotlin基础-扩展函数与扩展属性</title>
+    <link href="http://hcydev.com/2019/05/29/"/>
+    <id>http://hcydev.com/2019/05/29/</id>
+    <published>2019-05-29T14:49:02.000Z</published>
+    <updated>2019-05-29T15:59:56.865Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="扩展函数"><a href="#扩展函数" class="headerlink" title="扩展函数"></a>扩展函数</h2><p>在<code>kotlin</code> 中，能够扩展一个类的新功能而无需继承该类，它是一个类的成员函数，不过是定义来类的外面，下面声明一个扩展函数：</p><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> String.<span class="title">lastChar</span><span class="params">()</span></span>:<span class="built_in">Char</span> = <span class="keyword">this</span>.<span class="keyword">get</span>(<span class="keyword">this</span>.length-<span class="number">1</span>)</span><br></pre></td></tr></table></figure><p>扩展的类或接口需要放到声明的函数前面，这个类的名称叫作<strong>接收者类型</strong> ，调用这个函数的对象叫作<strong>接收者对象</strong>。</p><p>接收者类型是由扩展函数定义的，接收者对象是该类型的一个实例。可以像普通成员函数一样调用这个函数。</p><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">println(<span class="string">"Kotlin"</span>.lastChar()</span><br></pre></td></tr></table></figure><p>在这个例子中，<code>String</code>是接收者类型，而<code>Kotlin</code>就是接收者对象。</p><p>在这个扩展函数中，可以像其他成员函数一样使用<code>this</code>，也可以像普通的成员函数一样，省略<code>this</code>。</p><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> String.<span class="title">lastChar</span><span class="params">()</span></span>:<span class="built_in">Char</span> = <span class="keyword">get</span>(length-<span class="number">1</span>)</span><br></pre></td></tr></table></figure><p>在扩展函数中，可以直接访问被扩展的类的其他成员方法和属性，但是扩展函数不允许打破它的封装性，和在内部定义方法不同的是，扩展函数不能访问私有的或者受保护的成员。</p><p>在Java中使用扩展函数：</p><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">char kotlin = StringUtil.lastChar(<span class="string">"KOTLIN"</span>);</span><br><span class="line">System.<span class="keyword">out</span>.println(kotlin);</span><br></pre></td></tr></table></figure><p>因为扩展函数声明成了顶层函数，它会编译成静态函数，在<code>Java</code> 中导入类名即可直接调用。</p><h4 id="不可重写的扩展函数"><a href="#不可重写的扩展函数" class="headerlink" title="不可重写的扩展函数"></a>不可重写的扩展函数</h4><p>在kotlin中不能重写扩展函数。看下面的例子：</p><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">open</span> <span class="class"><span class="keyword">class</span> <span class="title">View</span> </span>&#123;</span><br><span class="line">    <span class="keyword">open</span> <span class="function"><span class="keyword">fun</span> <span class="title">click</span><span class="params">()</span></span> = println(<span class="string">"View click"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Button</span>: <span class="type">View</span></span>() &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">click</span><span class="params">()</span></span> = println(<span class="string">"Button click"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; <span class="keyword">val</span> view:View = Button()</span><br><span class="line">&gt;&gt;&gt; view.click()</span><br><span class="line">Button click</span><br></pre></td></tr></table></figure><p>Java的多态性我们都知道，是一个父类类型指向了子类的实例，当调用这个实例的<code>click</code>函数时，会调用到子类的<code>click</code>函数。但是对于扩展函数来说，并不是这样的，下面分别声明在<code>View</code>和<code>Button</code> 的扩展函数<code>showOff</code>：</p><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> View.<span class="title">showOff</span><span class="params">()</span></span> = println(<span class="string">"View showOff"</span>)</span><br><span class="line"><span class="function"><span class="keyword">fun</span> Button.<span class="title">showOff</span><span class="params">()</span></span> = println(<span class="string">"Button showOff"</span>)</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; <span class="keyword">val</span> view:View = Button()</span><br><span class="line">&gt;&gt;&gt; view.showOff()</span><br><span class="line">View showOff</span><br></pre></td></tr></table></figure><p>我们发现，当调用<code>View</code> 类型的变量的<code>showOff</code> 时，相对应的扩展函数会被调用，尽管它指向一个子类<code>Button</code> 的实例。这是为什么呢？上文中提到，扩展函数会被编译成静态函数，接手值作为第一个参数，看下反编译后的代码：</p><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> static <span class="keyword">final</span> void showOff(<span class="meta">@NotNull</span> View $<span class="keyword">this</span>$showOff) &#123;</span><br><span class="line">   String var1 = <span class="string">"View showOff"</span>;</span><br><span class="line">   System.<span class="keyword">out</span>.println(var1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//调用处</span></span><br><span class="line">      View view = (View)(new Button());</span><br><span class="line">      view.click();</span><br><span class="line">      showOff(view);</span><br></pre></td></tr></table></figure><p>所有kotlin中扩展函数并不存在重写，因为会被当做静态函数对待。如果定义的成员函数与扩展函数同名，成员函数会被优先使用。</p><h2 id="扩展属性"><a href="#扩展属性" class="headerlink" title="扩展属性"></a>扩展属性</h2>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;扩展函数&quot;&gt;&lt;a href=&quot;#扩展函数&quot; class=&quot;headerlink&quot; title=&quot;扩展函数&quot;&gt;&lt;/a&gt;扩展函数&lt;/h2&gt;&lt;p&gt;在&lt;code&gt;kotlin&lt;/code&gt; 中，能够扩展一个类的新功能而无需继承该类，它是一个类的成员函数，不过是定义来类的外
+      
+    
+    </summary>
+    
+      <category term="kotlin基础" scheme="http://hcydev.com/categories/kotlin%E5%9F%BA%E7%A1%80/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>kotlin基础-命名参数与默认值</title>
